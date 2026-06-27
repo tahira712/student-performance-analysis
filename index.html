@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Student Performance Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:       #f4f6f9;
+    --surface:  #ffffff;
+    --border:   #e2e8f0;
+    --text:     #1a202c;
+    --muted:    #718096;
+    --accent:   #2a78d6;
+    --green:    #1baf7a;
+    --amber:    #eda100;
+    --red:      #d03b3b;
+    --violet:   #4a3aa7;
+    --radius:   10px;
+  }
+
+  body { background: var(--bg); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: var(--text); font-size: 14px; }
+
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; position: sticky; top: 0; z-index: 10; }
+  .logo { font-size: 17px; font-weight: 600; color: var(--text); }
+  .logo span { color: var(--accent); }
+  .meta { font-size: 12px; color: var(--muted); }
+
+  .toolbar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 10px 24px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .toolbar label { font-size: 13px; color: var(--muted); }
+  select { font-size: 13px; padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text); cursor: pointer; outline: none; }
+  select:focus { border-color: var(--accent); }
+
+  main { padding: 20px 24px; max-width: 1200px; margin: 0 auto; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .kpi-label { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 6px; }
+  .kpi-value { font-size: 28px; font-weight: 700; color: var(--text); line-height: 1; }
+  .kpi-sub { font-size: 12px; margin-top: 5px; }
+  .good { color: var(--green); } .warn { color: var(--amber); } .bad { color: var(--red); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
+  .chart-wrap { position: relative; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: var(--muted); }
+  .leg-sq { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 9px 12px; font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 500; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg); }
+
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; }
+  .ba { background: #eaf3de; color: #3B6D11; }
+  .bb { background: #dbeafe; color: #1e40af; }
+  .bc { background: #fef3c7; color: #92400e; }
+  .bd { background: #fee2e2; color: #991b1b; }
+
+  .progress-bar { height: 6px; border-radius: 3px; background: var(--border); overflow: hidden; margin-top: 4px; }
+  .progress-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width .3s; }
+
+  footer { text-align: center; padding: 24px; font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); margin-top: 8px; }
+
+  @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } main { padding: 14px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">Student <span>Performance</span> Dashboard</div>
+    <div class="meta">Mathematics &amp; Informatics · Academic Year 2024–25</div>
+  </div>
+  <div class="meta" id="lastUpdated"></div>
+</header>
+
+<div class="toolbar">
+  <label>Subject</label>
+  <select id="subjectFilter">
+    <option value="all">All subjects</option>
+    <option value="Mathematics">Mathematics</option>
+    <option value="Informatics">Informatics</option>
+    <option value="English">English</option>
+    <option value="Physics">Physics</option>
+  </select>
+  <label>Grade</label>
+  <select id="gradeFilter">
+    <option value="all">All grades</option>
+    <option value="A">Grade A</option>
+    <option value="B">Grade B</option>
+    <option value="C">Grade C</option>
+    <option value="D">Grade D</option>
+  </select>
+  <label>Sort by</label>
+  <select id="sortBy">
+    <option value="score">Score</option>
+    <option value="name">Name</option>
+    <option value="attendance">Attendance</option>
+  </select>
+</div>
+
+<main>
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Total students</div><div class="kpi-value" id="kTotal">—</div><div class="kpi-sub" id="kTotalSub"></div></div>
+    <div class="kpi"><div class="kpi-label">Class average</div><div class="kpi-value" id="kAvg">—</div><div class="kpi-sub" id="kAvgSub"></div></div>
+    <div class="kpi"><div class="kpi-label">Pass rate</div><div class="kpi-value" id="kPass">—</div><div class="kpi-sub" id="kPassSub"></div></div>
+    <div class="kpi"><div class="kpi-label">Grade A students</div><div class="kpi-value" id="kTop">—</div><div class="kpi-sub" id="kTopSub"></div></div>
+    <div class="kpi"><div class="kpi-label">Avg attendance</div><div class="kpi-value" id="kAtt">—</div><div class="kpi-sub" id="kAttSub"></div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Average score by subject</div>
+      <div class="legend" id="legendBar"></div>
+      <div class="chart-wrap" style="height:220px"><canvas id="barChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Grade distribution</div>
+      <div class="legend" id="legendPie"></div>
+      <div class="chart-wrap" style="height:220px"><canvas id="pieChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">Monthly score trend</div>
+    <div class="legend" id="legendLine"></div>
+    <div class="chart-wrap" style="height:200px"><canvas id="lineChart"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Student records</div>
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Student</th><th>Mathematics</th><th>Informatics</th>
+            <th>English</th><th>Physics</th><th>Average</th><th>Grade</th><th>Attendance</th>
+          </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer>Built by Tahirə Hüseynova · Data Analysis Portfolio Project · Python + Chart.js</footer>
+
+<script>
+const COLORS = { Mathematics:'#2a78d6', Informatics:'#1baf7a', English:'#eda100', Physics:'#4a3aa7' };
+const GRADE_COLORS = ['#2a78d6','#1baf7a','#eda100','#d03b3b'];
+const SUBJECTS = ['Mathematics','Informatics','English','Physics'];
+
+let data = null;
+let barChart, pieChart, lineChart;
+
+function grade(s){ return s>=90?'A':s>=75?'B':s>=60?'C':'D'; }
+function badgeClass(g){ return {A:'ba',B:'bb',C:'bc',D:'bd'}[g]; }
+
+function getScore(student, subj){
+  if(subj === 'all') return student.average;
+  return student.scores[subj];
+}
+
+function legend(id, items){
+  document.getElementById(id).innerHTML = items.map(i=>
+    `<div class="legend-item"><div class="leg-sq" style="background:${i.color}"></div>${i.label}</div>`
+  ).join('');
+}
+
+function render(){
+  if(!data) return;
+  const subj = document.getElementById('subjectFilter').value;
+  const gradeF = document.getElementById('gradeFilter').value;
+  const sortBy = document.getElementById('sortBy').value;
+
+  let students = data.students.map(s=>({
+    ...s,
+    displayScore: Math.round(subj==='all'? s.average : s.scores[subj]),
+    displayGrade: grade(subj==='all'? s.average : s.scores[subj])
+  }));
+
+  if(gradeF !== 'all') students = students.filter(s=>s.displayGrade===gradeF);
+  if(sortBy==='score') students.sort((a,b)=>b.displayScore-a.displayScore);
+  else if(sortBy==='name') students.sort((a,b)=>a.name.localeCompare(b.name));
+  else students.sort((a,b)=>b.attendance-a.attendance);
+
+  const total = students.length;
+  const avg = total ? (students.reduce((a,s)=>a+s.displayScore,0)/total) : 0;
+  const passing = students.filter(s=>s.displayScore>=60).length;
+  const passRate = total ? Math.round(passing/total*100) : 0;
+  const topCount = students.filter(s=>s.displayGrade==='A').length;
+  const avgAtt = total ? Math.round(students.reduce((a,s)=>a+s.attendance,0)/total) : 0;
+
+  document.getElementById('kTotal').textContent = total;
+  document.getElementById('kTotalSub').textContent = `of ${data.students.length} total`;
+  document.getElementById('kTotalSub').className = 'kpi-sub';
+
+  document.getElementById('kAvg').textContent = avg.toFixed(1);
+  const avgClass = avg>=75?'good':avg>=60?'warn':'bad';
+  document.getElementById('kAvgSub').innerHTML = `<span class="${avgClass}">${avg>=75?'↑ Above target':avg>=60?'→ Near target':'↓ Below target'}</span>`;
+
+  document.getElementById('kPass').textContent = passRate+'%';
+  document.getElementById('kPassSub').innerHTML = `<span class="${passRate>=80?'good':'bad'}">${passing} of ${total} students</span>`;
+
+  document.getElementById('kTop').textContent = topCount;
+  document.getElementById('kTopSub').textContent = `${Math.round(topCount/total*100)||0}% of filtered`;
+  document.getElementById('kTopSub').className = 'kpi-sub good';
+
+  document.getElementById('kAtt').textContent = avgAtt+'%';
+  document.getElementById('kAttSub').innerHTML = `<span class="${avgAtt>=85?'good':'warn'}">${avgAtt>=85?'Good attendance':'Needs monitoring'}</span>`;
+
+  // Bar chart
+  const activeSubjects = subj==='all' ? SUBJECTS : [subj];
+  const barAvgs = activeSubjects.map(s=>Math.round(data.students.reduce((a,st)=>a+st.scores[s],0)/data.students.length));
+
+  legend('legendBar', activeSubjects.map((s,i)=>({label:`${s}: ${barAvgs[i]}`, color:COLORS[s]})));
+
+  if(barChart) barChart.destroy();
+  barChart = new Chart(document.getElementById('barChart'),{
+    type:'bar',
+    data:{ labels: activeSubjects.map(s=>s.substring(0,4)+'…'), datasets:[{
+      data: barAvgs, backgroundColor: activeSubjects.map(s=>COLORS[s]),
+      borderRadius:5, borderSkipped:false,
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:c=>' Score: '+c.raw}}},
+      scales:{ y:{min:0,max:100,grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}},
+               x:{grid:{display:false},ticks:{font:{size:11}}} } }
+  });
+
+  // Pie chart
+  const grades = ['A','B','C','D'];
+  const gradeCounts = grades.map(g=>students.filter(s=>s.displayGrade===g).length);
+  legend('legendPie', grades.map((g,i)=>({label:`Grade ${g}: ${gradeCounts[i]}`, color:GRADE_COLORS[i]})));
+
+  if(pieChart) pieChart.destroy();
+  pieChart = new Chart(document.getElementById('pieChart'),{
+    type:'doughnut',
+    data:{ labels:grades.map(g=>'Grade '+g), datasets:[{
+      data:gradeCounts, backgroundColor:GRADE_COLORS, borderWidth:2, borderColor:'#fff'
+    }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}} }
+  });
+
+  // Line chart
+  const lineSubjects = subj==='all' ? SUBJECTS : [subj];
+  legend('legendLine', lineSubjects.map(s=>({label:s, color:COLORS[s]})));
+
+  if(lineChart) lineChart.destroy();
+  lineChart = new Chart(document.getElementById('lineChart'),{
+    type:'line',
+    data:{ labels: data.months, datasets: lineSubjects.map(s=>({
+      label:s, data: data.monthly_trends[s],
+      borderColor: COLORS[s], backgroundColor: COLORS[s]+'22',
+      fill: lineSubjects.length===1, tension:0.4, borderWidth:2,
+      pointRadius:3, pointBackgroundColor:COLORS[s],
+    }))},
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}},
+      scales:{ y:{min:55,max:100,grid:{color:'rgba(0,0,0,0.05)'},ticks:{font:{size:11}}},
+               x:{grid:{display:false},ticks:{font:{size:11}}} } }
+  });
+
+  // Table
+  document.getElementById('studentTable').innerHTML = students.map((s,i)=>`
+    <tr>
+      <td style="color:#718096;font-weight:500">${i+1}</td>
+      <td style="font-weight:600">${s.name}</td>
+      <td>${s.scores.Mathematics}</td>
+      <td>${s.scores.Informatics}</td>
+      <td>${s.scores.English}</td>
+      <td>${s.scores.Physics}</td>
+      <td style="font-weight:600">${s.displayScore}</td>
+      <td><span class="badge ${badgeClass(s.displayGrade)}">${s.displayGrade}</span></td>
+      <td>
+        ${s.attendance}%
+        <div class="progress-bar"><div class="progress-fill" style="width:${s.attendance}%;background:${s.attendance>=85?'#1baf7a':'#eda100'}"></div></div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// Load data
+fetch('data.json')
+  .then(r=>r.json())
+  .then(d=>{
+    data = d;
+    document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    render();
+  })
+  .catch(()=>{
+    // Fallback: inline data if fetch fails (e.g. opened as local file)
+    data = {"students":[{"name":"Aynur M.","scores":{"Mathematics":94,"Informatics":84,"English":96,"Physics":94},"average":92.0,"grade":"A","attendance":97},{"name":"Kamran R.","scores":{"Mathematics":78,"Informatics":71,"English":82,"Physics":77},"average":77.0,"grade":"B","attendance":89},{"name":"Leyla H.","scores":{"Mathematics":83,"Informatics":80,"English":93,"Physics":79},"average":83.8,"grade":"B","attendance":93},{"name":"Tural A.","scores":{"Mathematics":67,"Informatics":64,"English":69,"Physics":60},"average":65.0,"grade":"C","attendance":78},{"name":"Nigar S.","scores":{"Mathematics":89,"Informatics":84,"English":98,"Physics":95},"average":91.5,"grade":"A","attendance":96},{"name":"Rashad K.","scores":{"Mathematics":54,"Informatics":55,"English":55,"Physics":50},"average":53.5,"grade":"D","attendance":65},{"name":"Gunel B.","scores":{"Mathematics":85,"Informatics":89,"English":80,"Physics":77},"average":82.8,"grade":"B","attendance":91},{"name":"Elvin C.","scores":{"Mathematics":78,"Informatics":65,"English":72,"Physics":72},"average":71.8,"grade":"C","attendance":83},{"name":"Sevinc O.","scores":{"Mathematics":100,"Informatics":96,"English":97,"Physics":93},"average":96.5,"grade":"A","attendance":98},{"name":"Farid N.","scores":{"Mathematics":62,"Informatics":60,"English":63,"Physics":52},"average":59.3,"grade":"D","attendance":72},{"name":"Xumar T.","scores":{"Mathematics":88,"Informatics":80,"English":88,"Physics":88},"average":86.0,"grade":"B","attendance":88},{"name":"Zulfiya E.","scores":{"Mathematics":67,"Informatics":73,"English":76,"Physics":70},"average":71.5,"grade":"C","attendance":80},{"name":"Murad L.","scores":{"Mathematics":98,"Informatics":93,"English":97,"Physics":86},"average":93.5,"grade":"A","attendance":99},{"name":"Aysel P.","scores":{"Mathematics":66,"Informatics":59,"English":66,"Physics":57},"average":62.0,"grade":"C","attendance":74},{"name":"Samir Q.","scores":{"Mathematics":87,"Informatics":88,"English":88,"Physics":79},"average":85.5,"grade":"B","attendance":92},{"name":"Nərmin V.","scores":{"Mathematics":77,"Informatics":75,"English":77,"Physics":70},"average":74.8,"grade":"C","attendance":85}],"monthly_trends":{"Mathematics":[68,70,72,75,78,80,82,85,87],"Informatics":[65,68,70,72,75,77,80,82,84],"English":[70,72,74,76,78,80,81,83,85],"Physics":[63,66,68,70,73,75,78,80,82]},"months":["Sep","Oct","Nov","Dec","Jan","Feb","Mar","Apr","May"],"subjects":["Mathematics","Informatics","English","Physics"],"summary":{"total_students":16,"class_average":78.0,"median_score":80.0,"std_deviation":13.0,"pass_rate":87.5,"grade_counts":{"A":4,"B":5,"C":5,"D":2},"subject_averages":{"Mathematics":79.6,"Informatics":76.0,"English":81.3,"Physics":73.7}}};
+    document.getElementById('lastUpdated').textContent = 'Demo mode';
+    render();
+  });
+
+document.getElementById('subjectFilter').addEventListener('change', render);
+document.getElementById('gradeFilter').addEventListener('change', render);
+document.getElementById('sortBy').addEventListener('change', render);
+</script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+{
+  "students": [
+    {
+      "name": "Aynur M.",
+      "scores": {
+        "Mathematics": 98,
+        "Informatics": 86,
+        "English": 90,
+        "Physics": 94
+      },
+      "average": 92,
+      "grade": "A",
+      "attendance": 97
+    },
+    {
+      "name": "Kamran R.",
+      "scores": {
+        "Mathematics": 76,
+        "Informatics": 72,
+        "English": 77,
+        "Physics": 69
+      },
+      "average": 73.5,
+      "grade": "C",
+      "attendance": 89
+    },
+    {
+      "name": "Leyla H.",
+      "scores": {
+        "Mathematics": 93,
+        "Informatics": 80,
+        "English": 94,
+        "Physics": 88
+      },
+      "average": 88.8,
+      "grade": "B",
+      "attendance": 93
+    },
+    {
+      "name": "Tural A.",
+      "scores": {
+        "Mathematics": 67,
+        "Informatics": 57,
+        "English": 70,
+        "Physics": 60
+      },
+      "average": 63.5,
+      "grade": "C",
+      "attendance": 78
+    },
+    {
+      "name": "Nigar S.",
+      "scores": {
+        "Mathematics": 85,
+        "Informatics": 82,
+        "English": 88,
+        "Physics": 83
+      },
+      "average": 84.5,
+      "grade": "B",
+      "attendance": 96
+    },
+    {
+      "name": "Rashad K.",
+      "scores": {
+        "Mathematics": 52,
+        "Informatics": 54,
+        "English": 60,
+        "Physics": 44
+      },
+      "average": 52.5,
+      "grade": "D",
+      "attendance": 65
+    },
+    {
+      "name": "Gunel B.",
+      "scores": {
+        "Mathematics": 84,
+        "Informatics": 76,
+        "English": 89,
+        "Physics": 81
+      },
+      "average": 82.5,
+      "grade": "B",
+      "attendance": 91
+    },
+    {
+      "name": "Elvin C.",
+      "scores": {
+        "Mathematics": 78,
+        "Informatics": 72,
+        "English": 75,
+        "Physics": 65
+      },
+      "average": 72.5,
+      "grade": "C",
+      "attendance": 83
+    },
+    {
+      "name": "Sevinc O.",
+      "scores": {
+        "Mathematics": 97,
+        "Informatics": 96,
+        "English": 96,
+        "Physics": 97
+      },
+      "average": 96.5,
+      "grade": "A",
+      "attendance": 98
+    },
+    {
+      "name": "Farid N.",
+      "scores": {
+        "Mathematics": 54,
+        "Informatics": 63,
+        "English": 68,
+        "Physics": 51
+      },
+      "average": 59,
+      "grade": "D",
+      "attendance": 72
+    },
+    {
+      "name": "Xumar T.",
+      "scores": {
+        "Mathematics": 92,
+        "Informatics": 84,
+        "English": 88,
+        "Physics": 80
+      },
+      "average": 86,
+      "grade": "B",
+      "attendance": 88
+    },
+    {
+      "name": "Zulfiya E.",
+      "scores": {
+        "Mathematics": 66,
+        "Informatics": 64,
+        "English": 78,
+        "Physics": 64
+      },
+      "average": 68,
+      "grade": "C",
+      "attendance": 80
+    },
+    {
+      "name": "Murad L.",
+      "scores": {
+        "Mathematics": 94,
+        "Informatics": 91,
+        "English": 100,
+        "Physics": 89
+      },
+      "average": 93.5,
+      "grade": "A",
+      "attendance": 99
+    },
+    {
+      "name": "Aysel P.",
+      "scores": {
+        "Mathematics": 61,
+        "Informatics": 58,
+        "English": 67,
+        "Physics": 55
+      },
+      "average": 60.2,
+      "grade": "C",
+      "attendance": 74
+    },
+    {
+      "name": "Samir Q.",
+      "scores": {
+        "Mathematics": 90,
+        "Informatics": 75,
+        "English": 91,
+        "Physics": 80
+      },
+      "average": 84,
+      "grade": "B",
+      "attendance": 92
+    },
+    {
+      "name": "Nərmin V.",
+      "scores": {
+        "Mathematics": 78,
+        "Informatics": 68,
+        "English": 78,
+        "Physics": 66
+      },
+      "average": 72.5,
+      "grade": "C",
+      "attendance": 85
+    }
+  ],
+  "monthly_trends": {
+    "Mathematics": [
+      68,
+      70,
+      73,
+      75,
+      78,
+      80,
+      82,
+      85,
+      87
+    ],
+    "Informatics": [
+      65,
+      67,
+      70,
+      72,
+      74,
+      77,
+      79,
+      82,
+      84
+    ],
+    "English": [
+      70,
+      72,
+      74,
+      76,
+      78,
+      79,
+      81,
+      83,
+      85
+    ],
+    "Physics": [
+      63,
+      65,
+      68,
+      70,
+      72,
+      75,
+      77,
+      80,
+      82
+    ]
+  },
+  "months": [
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May"
+  ],
+  "subjects": [
+    "Mathematics",
+    "Informatics",
+    "English",
+    "Physics"
+  ],
+  "summary": {
+    "total_students": 16,
+    "class_average": 76.8,
+    "median_score": 78.0,
+    "std_deviation": 13.6,
+    "pass_rate": 87.5,
+    "grade_counts": {
+      "A": 3,
+      "B": 5,
+      "C": 6,
+      "D": 2
+    },
+    "subject_averages": {
+      "Mathematics": 79.1,
+      "Informatics": 73.6,
+      "English": 81.8,
+      "Physics": 72.9
+    }
+  }
+}
