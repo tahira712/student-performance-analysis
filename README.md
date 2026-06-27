@@ -3,6 +3,7 @@
 An interactive data analytics dashboard built to analyse student academic performance across multiple subjects. This project demonstrates end-to-end data analysis skills — from raw data processing in Python to interactive visualisation in the browser.
 
 ## Live Demo
+<img width="1901" height="862" alt="image" src="https://github.com/user-attachments/assets/458e1dc2-17f3-4874-86e8-c655d04269b6" />
 
 Open `index.html` in any browser. No server required.
 
